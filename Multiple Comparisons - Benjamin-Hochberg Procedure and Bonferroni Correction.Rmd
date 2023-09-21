@@ -1,0 +1,282 @@
+---
+title: "Multiple Comparisons - Benjamini-Hochberg Procedure and Bonferroni Correction"
+author: Naomi Johnson
+output: html_notebook
+---
+
+Exercise: 
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define parameters
+sample_size <- 30  # Size of each sample
+num_simulations <- 1000  # Number of simulations
+mean1 <- 10  # Mean of sample 1
+mean2 <- 10  # Mean of sample 2
+sd1 <- 2     # Standard deviation of sample 1
+sd2 <- 2     # Standard deviation of sample 2
+
+# Initialize a vector to store p-values
+p_values <- numeric(num_simulations)
+
+# Perform 1000 t-tests and store p-values
+for (i in 1:num_simulations) {
+  # Generate two random samples
+  sample1 <- rnorm(sample_size, mean = mean1, sd = sd1)
+  sample2 <- rnorm(sample_size, mean = mean2, sd = sd2)
+  
+  # Perform a t-test and store the p-value
+  t_result <- t.test(sample1, sample2)
+  p_values[i] <- t_result$p.value
+}
+
+# Print the first 10 p-values
+cat("First 10 p-values:\n")
+cat(p_values[1:10], sep = ", ")
+
+# Save p-values to a CSV file
+results_df <- data.frame(P_Value = p_values)
+write.csv(results_df, "t_test_p_values.csv", row.names = FALSE)
+
+
+```
+
+Applying the Bonferroni Correction
+```{r}
+# Load the saved p-values
+p_values <- read.csv("t_test_p_values.csv")$P_Value
+
+# Number of tests conducted
+num_tests <- length(p_values)
+
+# Apply Bonferroni correction
+bonferroni_corrected_p_values <- p_values * num_tests
+
+# Print the first 10 Bonferroni-corrected p-values
+cat("First 10 Bonferroni-corrected p-values:\n")
+cat(bonferroni_corrected_p_values[1:10], sep = ", ")
+
+```
+Applying the Benjamini-Hochberg Procedure
+```{r}
+# Load the saved p-values
+p_values <- read.csv("t_test_p_values.csv")$P_Value
+
+# Apply the Benjamini-Hochberg procedure
+bh_adjusted_p_values <- p.adjust(p_values, method = "BH")
+
+# Print the first 10 BH-adjusted p-values
+cat("First 10 BH-adjusted p-values:\n")
+cat(bh_adjusted_p_values[1:10], sep = ", ")
+
+```
+Re-run the exercise with sample 1 mean = 1 and sample 2 mean = 2
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define parameters
+sample_size <- 30  # Size of each sample
+num_simulations <- 1000  # Number of simulations
+mean1 <- 1  # Mean of sample 1
+mean2 <- 2  # Mean of sample 2
+sd1 <- 2     # Standard deviation of sample 1
+sd2 <- 2     # Standard deviation of sample 2
+
+# Initialize a vector to store p-values
+p_values <- numeric(num_simulations)
+
+# Perform 1000 t-tests and store p-values
+for (i in 1:num_simulations) {
+  # Generate two random samples
+  sample1 <- rnorm(sample_size, mean = mean1, sd = sd1)
+  sample2 <- rnorm(sample_size, mean = mean2, sd = sd2)
+  
+  # Perform a t-test and store the p-value
+  t_result <- t.test(sample1, sample2)
+  p_values[i] <- t_result$p.value
+}
+
+# Print the first 10 p-values
+cat("First 10 p-values:\n")
+cat(p_values[1:10], sep = ", ")
+
+# Save p-values to a CSV file
+results_df <- data.frame(P_Value = p_values)
+write.csv(results_df, "t_test_p_values_mean_diff.csv", row.names = FALSE)
+
+```
+Re-run with the difference in means even greater (in this case, the difference is 5)
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define parameters
+sample_size <- 30  # Size of each sample
+num_simulations <- 1000  # Number of simulations
+mean1 <- 1  # Mean of sample 1
+mean2 <- 6  # Mean of sample 2 (larger difference)
+sd1 <- 2     # Standard deviation of sample 1
+sd2 <- 2     # Standard deviation of sample 2
+
+# Initialize a vector to store p-values
+p_values <- numeric(num_simulations)
+
+# Perform 1000 t-tests and store p-values
+for (i in 1:num_simulations) {
+  # Generate two random samples
+  sample1 <- rnorm(sample_size, mean = mean1, sd = sd1)
+  sample2 <- rnorm(sample_size, mean = mean2, sd = sd2)
+  
+  # Perform a t-test and store the p-value
+  t_result <- t.test(sample1, sample2)
+  p_values[i] <- t_result$p.value
+}
+
+# Print the first 10 p-values
+cat("First 10 p-values:\n")
+cat(p_values[1:10], sep = ", ")
+
+```
+Applying the Bonferroni Correction (for sample 1 with mean = 1, sample 2 with mean = 2)
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define parameters
+sample_size <- 30  # Size of each sample
+num_simulations <- 1000  # Number of simulations
+mean1 <- 1  # Mean of sample 1
+mean2 <- 2  # Mean of sample 2
+sd1 <- 2     # Standard deviation of sample 1
+sd2 <- 2     # Standard deviation of sample 2
+
+# Initialize a vector to store p-values
+p_values <- numeric(num_simulations)
+
+# Perform 1000 t-tests and store p-values
+for (i in 1:num_simulations) {
+  # Generate two random samples
+  sample1 <- rnorm(sample_size, mean = mean1, sd = sd1)
+  sample2 <- rnorm(sample_size, mean = mean2, sd = sd2)
+  
+  # Perform a t-test and store the p-value
+  t_result <- t.test(sample1, sample2)
+  p_values[i] <- t_result$p.value
+}
+
+# Apply Bonferroni correction
+bonferroni_corrected_p_values <- p_values * num_simulations
+
+# Print the first 10 Bonferroni-corrected p-values
+cat("First 10 Bonferroni-corrected p-values:\n")
+cat(bonferroni_corrected_p_values[1:10], sep = ", ")
+
+```
+Applying the Benjamini-Hochberg Procedure
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define parameters
+sample_size <- 30  # Size of each sample
+num_simulations <- 1000  # Number of simulations
+mean1 <- 1  # Mean of sample 1
+mean2 <- 2  # Mean of sample 2
+sd1 <- 2     # Standard deviation of sample 1
+sd2 <- 2     # Standard deviation of sample 2
+
+# Initialize a vector to store p-values
+p_values <- numeric(num_simulations)
+
+# Perform 1000 t-tests and store p-values
+for (i in 1:num_simulations) {
+  # Generate two random samples
+  sample1 <- rnorm(sample_size, mean = mean1, sd = sd1)
+  sample2 <- rnorm(sample_size, mean = mean2, sd = sd2)
+  
+  # Perform a t-test and store the p-value
+  t_result <- t.test(sample1, sample2)
+  p_values[i] <- t_result$p.value
+}
+
+# Apply Benjamini-Hochberg correction
+bh_adjusted_p_values <- p.adjust(p_values, method = "BH")
+
+# Print the first 10 BH-adjusted p-values
+cat("First 10 BH-adjusted p-values:\n")
+cat(bh_adjusted_p_values[1:10], sep = ", ")
+
+```
+Applying the Bonferroni Correction (for sample 1 with mean = 1, sample 2 with mean = 6)
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define parameters
+sample_size <- 30  # Size of each sample
+num_simulations <- 1000  # Number of simulations
+mean1 <- 1  # Mean of sample 1
+mean2 <- 6  # Mean of sample 2 (larger difference)
+sd1 <- 2     # Standard deviation of sample 1
+sd2 <- 2     # Standard deviation of sample 2
+
+# Initialize a vector to store p-values
+p_values <- numeric(num_simulations)
+
+# Perform 1000 t-tests and store p-values
+for (i in 1:num_simulations) {
+  # Generate two random samples
+  sample1 <- rnorm(sample_size, mean = mean1, sd = sd1)
+  sample2 <- rnorm(sample_size, mean = mean2, sd = sd2)
+  
+  # Perform a t-test and store the p-value
+  t_result <- t.test(sample1, sample2)
+  p_values[i] <- t_result$p.value
+}
+
+# Apply Bonferroni correction
+bonferroni_corrected_p_values <- p_values * num_simulations
+
+# Print the first 10 Bonferroni-corrected p-values
+cat("First 10 Bonferroni-corrected p-values:\n")
+cat(bonferroni_corrected_p_values[1:10], sep = ", ")
+
+```
+Applying the Benjamini-Hochberg
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define parameters
+sample_size <- 30  # Size of each sample
+num_simulations <- 1000  # Number of simulations
+mean1 <- 1  # Mean of sample 1
+mean2 <- 6  # Mean of sample 2 (larger difference)
+sd1 <- 2     # Standard deviation of sample 1
+sd2 <- 2     # Standard deviation of sample 2
+
+# Initialize a vector to store p-values
+p_values <- numeric(num_simulations)
+
+# Perform 1000 t-tests and store p-values
+for (i in 1:num_simulations) {
+  # Generate two random samples
+  sample1 <- rnorm(sample_size, mean = mean1, sd = sd1)
+  sample2 <- rnorm(sample_size, mean = mean2, sd = sd2)
+  
+  # Perform a t-test and store the p-value
+  t_result <- t.test(sample1, sample2)
+  p_values[i] <- t_result$p.value
+}
+
+# Apply Benjamini-Hochberg correction
+bh_adjusted_p_values <- p.adjust(p_values, method = "BH")
+
+# Print the first 10 BH-adjusted p-values
+cat("First 10 BH-adjusted p-values:\n")
+cat(bh_adjusted_p_values[1:10], sep = ", ")
+
+```
+Observations: The p-values decrease with increasing differences in the mean for the two samples. 
