@@ -28,6 +28,36 @@ if (summary(model)$coefficients["age", "Pr(>|t|)"] < 0.05) {
   cat("Fail to reject the null hypothesis. There is no significant relationship between x and y.")
 }
 ```
+Plotting Confidence Intervals 
+```{r}
+# Load the necessary libraries
+library(ggplot2)
+
+# Sample data
+set.seed(123)
+x <- age
+y <- wing_length
+
+# Create a data frame
+data <- age_winglength
+
+# Perform linear regression
+model <- lm(y ~ x, data = data)
+
+# Create the plot with confidence intervals
+plot <- ggplot(data, aes(x = x, y = y)) +
+  geom_point() +  # Scatterplot
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +  # Linear regression line with CIs
+  labs(title = "Scatterplot with Regression Line and Confidence Intervals of Age vs Winglength",
+       x = "X-axis", y = "Y-axis")
+
+# Print the plot
+print(plot)
+
+# Get the summary of the linear regression model
+summary(model)
+```
+
 Extracting R-squared
 ```{r}
 # Get the summary of the model
