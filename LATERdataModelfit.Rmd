@@ -1,0 +1,177 @@
+---
+title: "LATER fit to Model"
+author: "Naomi Johnson"
+output: html_notebook
+---
+
+Get the Data
+```{r}
+# Install the R.matlab package if not already installed
+install.packages("R.matlab")
+
+# Load the R.matlab library
+library(R.matlab)
+# Specify the folder path (including subfolders) where .mat files are located
+folder_path <- "/Users/naomijoh/Documents/QNC/R Studio Directory/RT Data/data_mgl"
+
+# List all files in the folder, including subfolders
+all_files <- list.files(path = folder_path, full.names = TRUE, recursive = TRUE)
+
+# Filter for .mat files
+mat_files <- all_files[grep("\\.mat$", all_files, ignore.case = TRUE)]
+
+# Check if there are any .mat files in the folder
+if (length(mat_files) > 0) {
+  # Load and work with the .mat files
+  for (mat_file in mat_files) {
+    # Load the .mat file into R
+    mat_data <- readMat(mat_file)
+    
+    # Access and process the data as needed
+    # For example, you can access variables using mat_data$variable_name
+    
+    # Print the file name
+    cat("Loaded .mat file:", mat_file, "\n")
+  }
+} else {
+  cat("No .mat files found in the folder.\n")
+}
+```
+```{r}
+install.packages("matlib", dependencies = TRUE, type = "source", INSTALL_opts = "--no-multiarch", configure.args = "--disable-rgl")
+
+
+```
+
+Create a Data Set Array
+```{r}
+# Load the matlib package if not already loaded
+# install.packages("matlib")
+library(matlib)
+
+# Specify the folder path where your .mat files are located
+folder_path <- "/Users/naomijoh/Documents/QNC/R Studio Directory/RT Data/data_mgl"
+
+# List all .mat files in the folder, including subfolders
+all_files <- list.files(path = folder_path, full.names = TRUE, recursive = TRUE)
+mat_files <- all_files[grep("\\.mat$", all_files, ignore.case = TRUE)]
+
+# Create an empty list to store arrays
+all_arrays <- list()
+
+# Loop through each .mat file and extract arrays
+for (mat_file in mat_files) {
+  # Load the .mat file
+  mat_data <- readMat(mat_file)
+  
+  # Access the array data (replace 'array_variable_name' with the actual variable name)
+  array_data <- mat_data$array_variable_name  # Adjust variable name
+  
+  # Append the array data to the list
+  all_arrays[[mat_file]] <- array_data
+}
+
+# Now, 'all_arrays' contains a list of arrays from your .mat files
+
+
+```
+
+```{r}
+# Define a function to compute the likelihood for a single data point
+compute_likelihood <- function(data_point, model_parameters) {
+  # Assuming a normal distribution with mean and standard deviation parameters
+  mu <- model_parameters[1]  # Mean
+  sigma <- model_parameters[2]  # Standard deviation
+  likelihood <- dnorm(as.numeric(data_point), mean = mu, sd = sigma)
+  return(likelihood)
+}
+
+# Example data point and model parameters
+data_point <- array_data[1]  # Replace with the index of the data point you want to compute the likelihood for
+model_parameters <- c(5, 2)  # Mean and standard deviation parameters
+
+# Compute the likelihood for the example data point
+likelihood <- compute_likelihood(data_point, model_parameters)
+
+```
+
+```{r}
+
+# Define your data points (replace with your actual data)
+data_points <- array_data
+
+# Define a function to be minimized (negative log-likelihood)
+minimization_function <- function(parameters) {
+  # Parameters: mean (mu) and standard deviation (sigma)
+  mu <- parameters[1]
+  sigma <- parameters[2]
+
+  # Compute the log-likelihood for all data points
+  log_likelihoods <- lapply(data_points, function(x) log(dnorm(x, mean = mu, sd = sigma)))
+
+  # Negative log-likelihood to be minimized
+  negative_log_likelihood <- -sum(unlist(log_likelihoods))
+
+  return(negative_log_likelihood)
+}
+
+# Perform optimization with bounds and initial values using L-BFGS-B method
+optim_result <- optim(par = initial_values, fn = minimization_function, lower = lower_bounds, upper = upper_bounds, method = "L-BFGS-B")
+
+# Extract the estimated parameters
+estimated_parameters <- optim_result$par
+
+
+# Perform optimization with bounds and initial values
+optim_result <- optim(par = initial_values, fn = minimization_function, lower = lower_bounds, upper = upper_bounds)
+
+# Extract the estimated parameters
+estimated_parameters <- optim_result$par
+
+```
+
+```{r}
+install.packages("DEoptim")
+library(DEoptim)
+
+```
+```{r}
+# Define the negative log-likelihood function
+minimization_function <- function(parameters) {
+  # Parameters: mean (mu) and standard deviation (sigma)
+  mu <- parameters[1]
+  sigma <- parameters[2]
+
+  # Compute the log-likelihood for all data points
+  log_likelihoods <- lapply(data_points, function(x) log(dnorm(x, mean = mu, sd = sigma)))
+
+  # Convert the list of log-likelihoods to a numeric vector and sum
+  negative_log_likelihood <- -sum(unlist(log_likelihoods))
+
+  return(negative_log_likelihood)
+}
+
+
+# Define bounds for the model parameters
+lower_bounds <- c(0.001, 0.001)  # Lower bounds for each parameter
+upper_bounds <- c(1000, 1000)    # Upper bounds for each parameter
+
+# Create a DEoptim control object
+control <- DEoptim.control(itermax = 1000, NP = 100)  # You can adjust these parameters
+
+# Perform optimization
+optim_result <- DEoptim(minimization_function, lower = lower_bounds, upper = upper_bounds, control = control)
+
+# Extract the best-fitting parameter values and negative log-likelihood
+best_params <- optim_result$optim$bestmem
+best_negative_log_likelihood <- -optim_result$optim$bestval
+
+# Display the results
+cat("Best-fitting parameters:\n")
+print(best_params)
+cat("Negative log-likelihood:", best_negative_log_likelihood, "\n")
+
+```
+Yes, given the negative log-likelihood being 0 this would suggest a good model fit to the observed data. 
+
+
